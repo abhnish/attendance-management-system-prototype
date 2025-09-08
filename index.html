@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance System Prototype</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+        .flow-card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .flow-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .nav-btn.active {
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+     <link rel="preconnect" href="https://rsms.me/">
+     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Main container for all views -->
+    <div id="landing-page" class="w-full h-screen flex items-center justify-center p-4">
+        <div class="max-w-4xl w-full mx-auto bg-white rounded-xl shadow-2xl p-8 md:p-12 text-center flow-card">
+            <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4">
+                Smart Attendance System
+            </h1>
+            <p class="text-lg md:text-xl text-slate-600 mb-8">
+                A modern solution for seamless and accurate attendance tracking.
+            </p>
+            
+            <div class="grid md:grid-cols-3 gap-6 text-left mb-10">
+                <div class="bg-blue-50 rounded-lg p-6">
+                    <h3 class="font-bold text-blue-600 text-xl mb-2">Student Focus</h3>
+                    <p class="text-slate-700">Effortless check-ins with QR codes and timely class notifications.</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-6">
+                    <h3 class="font-bold text-green-600 text-xl mb-2">Faculty Tools</h3>
+                    <p class="text-slate-700">Live attendance monitoring and simple class session management.</p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-6">
+                    <h3 class="font-bold text-purple-600 text-xl mb-2">Admin Insights</h3>
+                    <p class="text-slate-700">High-level analytics and reporting for proactive student support.</p>
+                </div>
+            </div>
+
+            <button id="view-dashboard-btn" class="py-3 px-12 bg-blue-600 text-white font-bold rounded-full text-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+                View Live Prototype
+            </button>
+        </div>
+    </div>
+
+    <!-- The original dashboard content, now hidden by default -->
+    <div id="dashboard-page" class="hidden container mx-auto px-4 py-8 md:py-12">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-5xl font-bold text-slate-900">Attendance System Dashboard</h1>
+            <p class="mt-3 text-lg text-slate-600 max-w-3xl mx-auto">A live prototype demonstrating the student, faculty, and admin workflows.</p>
+        </header>
+
+        <nav id="nav-menu" class="flex flex-wrap justify-center gap-2 md:gap-4 mb-10 p-2 rounded-full bg-white shadow-md">
+            <button data-target="student" class="nav-btn active text-sm md:text-base font-semibold py-2 px-4 rounded-full shadow-sm bg-blue-500 text-white hover:bg-blue-600 transition-colors duration-300">
+                Student
+            </button>
+            <button data-target="faculty" class="nav-btn text-sm md:text-base font-semibold py-2 px-4 rounded-full shadow-sm bg-white text-slate-700 hover:bg-slate-200 transition-colors duration-300">
+                Faculty
+            </button>
+            <button data-target="admin" class="nav-btn text-sm md:text-base font-semibold py-2 px-4 rounded-full shadow-sm bg-white text-slate-700 hover:bg-slate-200 transition-colors duration-300">
+                Admin
+            </button>
+        </nav>
+
+        <main id="content-container">
+            <!-- Student View -->
+            <section id="student" class="content-section">
+                <div class="p-6 md:p-10 bg-white rounded-xl flow-card">
+                    <h2 class="text-xl md:text-2xl font-bold text-blue-600 mb-6">Student Dashboard</h2>
+                    <div class="space-y-6">
+                        <div class="bg-gray-100 p-4 rounded-lg flex justify-between items-center">
+                            <span class="font-medium">Timetable: CS101 - 10:00 AM</span>
+                            <span class="text-sm text-green-600 font-semibold">Active</span>
+                        </div>
+                        <div id="qr-scanner" class="flex flex-col items-center p-6 bg-gray-50 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4 text-slate-700">Scan QR for Attendance</h3>
+                            <div class="bg-gray-200 w-48 h-48 rounded-lg flex items-center justify-center text-gray-500 text-sm">QR Code Placeholder</div>
+                            <button id="scan-qr-btn" class="mt-6 py-3 px-8 bg-green-500 text-white font-semibold rounded-full shadow-lg hover:bg-green-600 transition-all duration-300 transform hover:scale-105">
+                                Scan QR Code
+                            </button>
+                            <p id="scan-message" class="mt-4 text-center text-sm text-gray-600 hidden">Attendance Marked!</p>
+                        </div>
+                        <div id="notifications-area" class="bg-yellow-100 text-yellow-800 p-4 rounded-lg">
+                            <p class="font-medium">🔔 You have a new notification: Class on CS101 has been updated.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Faculty View -->
+            <section id="faculty" class="content-section hidden">
+                <div class="p-6 md:p-10 bg-white rounded-xl flow-card">
+                    <h2 class="text-xl md:text-2xl font-bold text-green-600 mb-6">Faculty Dashboard</h2>
+                    <div class="space-y-6">
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                            <h3 class="text-lg font-semibold">Live Class: CS101</h3>
+                            <button id="start-class-btn" class="py-3 px-8 bg-blue-500 text-white font-semibold rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 transform hover:scale-105">
+                                Start Class & Generate QR
+                            </button>
+                        </div>
+                        <div id="faculty-qr-area" class="flex flex-col items-center p-6 bg-gray-50 rounded-lg">
+                            <p id="class-status" class="mb-2 text-sm text-slate-600">Class has not started.</p>
+                            <img id="faculty-qr-img" class="w-48 h-48 rounded-lg hidden shadow-md" src="https://placehold.co/200x200" alt="QR Code">
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">Real-time Attendance</h3>
+                            <div class="overflow-x-auto bg-gray-50 rounded-lg p-2">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student ID</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="attendance-table-body" class="bg-white divide-y divide-gray-200">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Admin View -->
+            <section id="admin" class="content-section hidden">
+                <div class="p-6 md:p-10 bg-white rounded-xl flow-card">
+                    <h2 class="text-xl md:text-2xl font-bold text-purple-600 mb-6">Admin Dashboard</h2>
+                    <div class="space-y-8">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-4 text-center">Student Attendance Summary</h3>
+                            <div class="chart-container p-4 bg-gray-50 rounded-lg">
+                                <canvas id="attendance-chart"></canvas>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">At-Risk Students</h3>
+                            <ul id="at-risk-list" class="space-y-2">
+                                <li class="bg-red-100 text-red-800 p-3 rounded-lg flex items-center justify-between">
+                                    <span>S003 - David Lee (45% Attendance)</span>
+                                    <span class="text-sm font-semibold bg-red-200 text-red-900 px-2 py-1 rounded-full">Low</span>
+                                </li>
+                                <li class="bg-red-100 text-red-800 p-3 rounded-lg flex items-center justify-between">
+                                    <span>S005 - Sarah Chen (55% Attendance)</span>
+                                    <span class="text-sm font-semibold bg-red-200 text-red-900 px-2 py-1 rounded-full">Low</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="text-center">
+                            <button id="export-btn" class="py-3 px-8 bg-purple-500 text-white font-semibold rounded-full shadow-lg hover:bg-purple-600 transition-all duration-300 transform hover:scale-105">
+                                Export Reports (CSV)
+                            </button>
+                            <p id="export-message" class="mt-2 text-sm text-gray-600 hidden">Report exported successfully!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const appState = {
+            view: 'student',
+            faculty: {
+                classActive: false,
+                sessionId: null,
+                attendance: {
+                    'S001': { name: 'Alice Johnson', status: 'Pending' },
+                    'S002': { name: 'Bob Williams', status: 'Pending' },
+                    'S003': { name: 'David Lee', status: 'Pending' },
+                    'S004': { name: 'Emma Davis', status: 'Pending' },
+                    'S005': { name: 'Sarah Chen', status: 'Pending' }
+                }
+            },
+            admin: {
+                chartData: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                    datasets: [{
+                        label: 'Monthly Attendance Rate (%)',
+                        data: [75, 82, 80, 88, 92],
+                        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    }]
+                }
+            }
+        };
+
+        const navButtons = document.querySelectorAll('.nav-btn');
+        const contentSections = document.querySelectorAll('.content-section');
+        const scanQrBtn = document.getElementById('scan-qr-btn');
+        const scanMessage = document.getElementById('scan-message');
+        const startClassBtn = document.getElementById('start-class-btn');
+        const facultyQrImg = document.getElementById('faculty-qr-img');
+        const classStatus = document.getElementById('class-status');
+        const attendanceTableBody = document.getElementById('attendance-table-body');
+        const exportBtn = document.getElementById('export-btn');
+        const exportMessage = document.getElementById('export-message');
+
+        function updateView() {
+            contentSections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(appState.view).classList.remove('hidden');
+
+            navButtons.forEach(btn => {
+                if (btn.dataset.target === appState.view) {
+                    btn.classList.add('active', 'bg-blue-500', 'text-white');
+                    btn.classList.remove('bg-white', 'text-slate-700');
+                } else {
+                    btn.classList.remove('active', 'bg-blue-500', 'text-white');
+                    btn.classList.add('bg-white', 'text-slate-700');
+                }
+            });
+
+            if (appState.view === 'faculty') {
+                renderAttendanceTable();
+            }
+            if (appState.view === 'admin') {
+                renderAdminCharts();
+            }
+        }
+
+        function renderAttendanceTable() {
+            let html = '';
+            for (const studentId in appState.faculty.attendance) {
+                const student = appState.faculty.attendance[studentId];
+                const statusClass = student.status === 'Present' ? 'text-green-600' : 'text-yellow-600';
+                html += `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${studentId}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold ${statusClass}">${student.status}</td>
+                    </tr>
+                `;
+            }
+            attendanceTableBody.innerHTML = html;
+        }
+
+        let attendanceChart;
+        function renderAdminCharts() {
+            if (attendanceChart) {
+                attendanceChart.destroy();
+            }
+            const ctx = document.getElementById('attendance-chart').getContext('2d');
+            attendanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: appState.admin.chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Attendance Rate (%)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                appState.view = button.dataset.target;
+                updateView();
+            });
+        });
+
+        scanQrBtn.addEventListener('click', () => {
+            if (appState.faculty.classActive) {
+                const randomStudentId = Object.keys(appState.faculty.attendance)[Math.floor(Math.random() * 5)];
+                appState.faculty.attendance[randomStudentId].status = 'Present';
+                scanMessage.textContent = 'Attendance Marked!';
+                scanMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    scanMessage.classList.add('hidden');
+                }, 2000);
+                renderAttendanceTable();
+            } else {
+                scanMessage.textContent = 'No active class session.';
+                scanMessage.classList.remove('hidden');
+            }
+        });
+
+        startClassBtn.addEventListener('click', () => {
+            appState.faculty.classActive = true;
+            appState.faculty.sessionId = Math.random().toString(36).substring(7);
+            classStatus.textContent = `Class is now active. Session ID: ${appState.faculty.sessionId}`;
+            facultyQrImg.src = `https://placehold.co/200x200/500/FFF?text=SessionID\n${appState.faculty.sessionId}`;
+            facultyQrImg.classList.remove('hidden');
+            startClassBtn.textContent = 'Class Active';
+            startClassBtn.disabled = true;
+            for (const studentId in appState.faculty.attendance) {
+                 appState.faculty.attendance[studentId].status = 'Pending';
+            }
+            renderAttendanceTable();
+        });
+
+        exportBtn.addEventListener('click', () => {
+            exportMessage.classList.remove('hidden');
+            setTimeout(() => {
+                exportMessage.classList.add('hidden');
+            }, 2000);
+        });
+
+        // Landing page logic
+        const landingPage = document.getElementById('landing-page');
+        const dashboardPage = document.getElementById('dashboard-page');
+        const viewDashboardBtn = document.getElementById('view-dashboard-btn');
+
+        viewDashboardBtn.addEventListener('click', () => {
+            landingPage.classList.add('hidden');
+            dashboardPage.classList.remove('hidden');
+            updateView();
+        });
+    </script>
+</body>
+</html>
